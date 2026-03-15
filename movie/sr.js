@@ -35,7 +35,6 @@ const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 const index = pc.index(process.env.PINECONE_INDEX);
  const store= new Map();
  let data = [];
-// const client = new MongoClient("mongodb+srv://ankurgoyal1227_db_user:0fqu2Vnd81bkdyJV@emploee.ltat2dt.mongodb.net/emploee");
 const client = new MongoClient(process.env.MONGO_URI);
 await client.connect();
 const db =  client.db("movie"); 
