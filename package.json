@@ -15,10 +15,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^6.21.0",
     "ollama": "^0.6.3",
-<<<<<<< HEAD
-=======
-    "multer": "^2.0.2",
->>>>>>> 938d525164d2ab8c403e7afd08b064345e65c7bb
-    "@tavily/core": "^0.7.1"
+      "multer": "^2.0.2",
+     "@tavily/core": "^0.7.1"
   }
 }

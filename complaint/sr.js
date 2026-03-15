@@ -1,20 +1,14 @@
-<<<<<<< HEAD:complaint/sr.js
 // const express = require("express");
 // const { MongoClient, ObjectId } = require("mongodb");
 // const multer = require("multer");
 // const cors = require("cors");
-=======
->>>>>>> 938d525164d2ab8c403e7afd08b064345e65c7bb:back/sr.js
-import dotenv from "dotenv";
+  import dotenv from "dotenv";
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
 import cors from "cors";
 import multer from "multer";
-<<<<<<< HEAD:complaint/sr.js
-=======
-dotenv.config();
->>>>>>> 938d525164d2ab8c403e7afd08b064345e65c7bb:back/sr.js
-const app = express();
+  dotenv.config();
+ const app = express();
 dotenv.config();
 app.use(cors()); 
 app.use(express.json()); 
