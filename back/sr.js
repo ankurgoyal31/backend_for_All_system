@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json()); 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
- const client = new MongoClient(process.env.MONGODB_URI);
+ const client = new MongoClient(process.env.MONGO_URI);
 
 async function startServer() {
   try {
