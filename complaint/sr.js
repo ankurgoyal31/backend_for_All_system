@@ -4,62 +4,69 @@ import { MongoClient, ObjectId } from "mongodb";
 import cors from "cors";
 import multer from "multer";
   dotenv.config();
-// import { configDotenv } from "dotenv";
-const router = express.Router();
+ const router = express.Router();
 router.use(cors()); 
 router.use(express.json()); 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
- const client = new MongoClient(process.env.MONGO_URI);
-
-async function startServer() {
+ 
+let client;   
+let db;
+async function startServer() { 
   try {
+     client = new MongoClient(process.env.MONGO_URI);   
     await client.connect();
-    console.log("MongoDB connected");
-
-    const db = client.db("complaint");
+    db = client.db("complaint"); 
+    
     const User = db.collection("user");
-    const Us = db.collection("Us");
+    const Us = db.collection("Us"); 
     const Ad = db.collection("admin");
-    const msg  = db.collection("msg");
+    const msg  = db.collection("msg"); 
      router.post("/upload", upload.single("image"), async (req, res) => {
       try {
         const file = req.file;
         const { _id,  userEmail,  userName,name, branch, complaint,  des,  location,  img, mobile,} = req.body;
-
-         if (_id && ObjectId.isValid(_id)) {
-          const existing = await User.findOne({ _id: new ObjectId(_id),  userEmail,  userName, });
-
-          if (existing) {
-            const updateData = {  name,  branch,  complaint,  des,  location,  mobile,};
-
-            if (file) {
-              updateData.image = file.buffer.toString("base64");
-            }
-
-            await User.updateOne({ _id: new ObjectId(_id) }, { $set: updateData });
-            return res.json({ success: true, updated: true });
-          }
-        }
-
          if (!file) {
           return res.status(400).json({ error: "Image required" });
         }
 
         await User.insertOne({ userEmail, userName, name, branch,  complaint,  des,  location,   img,  mobile, status: "Pending",  image: file.buffer.toString("base64"),  noti: [],  uploadedAt: new Date(),});
 
-        res.json({ success: true, inserted: true });
+        res.json({ok: true, inserted: true });
       } catch (err) {
         console.error("UPLOAD ERROR:", err);
-        res.status(500).json({ error: "Server error" });
+        res.json({ok:false});
       }
     }); 
 
+    router.post("/edit", upload.single("image"), async (req, res) => {
+  try {
+    const file = req.file;
+    const { _id, userEmail, userName, name, branch, complaint, des, location, mobile } = req.body;
+    if (!_id || !ObjectId.isValid(_id)) {
+      return res.json({ success: false });
+    }
+const existing = await User.findOne({_id: new ObjectId(_id)});
+console.log("Existing ->", existing);
+    if (!existing) {
+      return res.json({ success: false });
+    }
+
+    const updateData = {name, branch, complaint, des, location, mobile};
+    if (file) {
+      updateData.image = file.buffer.toString("base64");
+    }
+    await User.updateOne({ _id: new ObjectId(_id) }, { $set: updateData });
+    return res.json({ success: true, updated: true });
+  } catch (err) {
+    console.log("EDIT ERROR ->", err);
+    return res.status(500).json({ success: false });
+  }
+});
      router.get("/users", async (req, res) => {
       const { email } = req.query;
       if (!email) return res.status(400).json({ error: "Email required" });
-
-      const users = await User.find({ userEmail: email }).toArray();
+      const users = await User.find({ userEmail: email }).project({name:1,branch: 1,complaint: 1,des: 1, location: 1,img: 1,mobile: 1,status: 1, uploadedAt: 1}).toArray();
       res.json(users);
     });
 
@@ -82,7 +89,7 @@ async function startServer() {
       res.json(data);
     });
 
-    router.post("/load", upload.none(), async (req, res) => {
+     router.post("/load", upload.none(), async (req, res) => {
       const { userEmail, userName, _id, noti } = req.body;
 
       if (!_id || !ObjectId.isValid(_id)) {
@@ -121,14 +128,22 @@ async function startServer() {
 router.post("/chstatus",async(req,res)=>{
   console.log("fuck...",req.body)
   let data = await User.findOne({userEmail:req.body.email,des:req.body.des,mobile:req.body.mob})
-  if(data){
+  if(data){ 
     await User.updateOne({_id:data._id},{$set:{status:req.body.status}});
     await msg.insertOne({name:req.body.name,email:req.body.email,mobile:req.body.mob,complaint:req.body.complaint,des:req.body.des,status:req.body.status === "In Progress"? `👋 Your complaint is now In Progress. Our admin is reviewing it.`: `🥳 Your complaint has been ${req.body.status}.`,complaintId:data._id,uploaded:req.body.date})
     return res.send({ok:true})
   }
-      return res.send({ok:fasle});
+      return res.send({ok:false});
 })
-    router.get("/update", async (req, res) => {
+router.get("/get_data",async(req,res)=>{
+try{
+  let data = await User.find({userEmail:req.query.email}).project({image:1}).toArray();
+  return res.send(data)
+}catch{
+  return({sucess:false})
+}
+})
+router.get("/update", async (req, res) => {
 
    try {
      const id = req.query.edit;
@@ -146,17 +161,14 @@ router.post("/msg",async(req,res)=>{
   try{
 let data = await msg.find({email:req.body.email}).toArray();
  return res.send(data)
-  }catch(err){
-res.status(500).json([]);
-  }
-})
+  }catch(err){ 
+res.status(500).json({ok: false,data: []});}})
     //  router.listen(5000, () =>
-    //   console.log("Server running on http://localhost:5000")
+    //   console.log(`Server running on ${process.env.NEXT_PUBLIC_BACKEND}`)
     // );
    } catch (err) {
     console.error("SERVER START ERROR:", err);
   }
 }
-
-startServer(); 
+startServer();  
 export default router;
