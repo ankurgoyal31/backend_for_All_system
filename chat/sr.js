@@ -5,9 +5,9 @@ import { MongoClient } from "mongodb";
 import { configDotenv } from "dotenv";
 import Groq from "groq-sdk";
 const port = 3000;
-const app = express();
-app.use(cors());
-app.use(express.json()); 
+const router = express.Router();
+router.use(cors());
+router.use(express.json()); 
 configDotenv();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY});
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY});
@@ -15,7 +15,7 @@ const client = new MongoClient(process.env.MONGO_URI);
 await client.connect();
 const db = client.db("ai");
 const User = db.collection("msg")
-app.delete("/clear", async (req, res) => {
+router.delete("/clear", async (req, res) => {
   await User.deleteMany({}); 
   res.json({ ok: true });
 });
@@ -103,12 +103,10 @@ async function websearch({query}) {
    return res;
 }
  
-app.post("/ask", async (req, res) => {
+router.post("/ask", async (req, res) => {
   const iny = req.body.inp;
    const ans = await main(iny);
    await User.insertOne({msg:ans,que:iny});
    res.json({ans});
 });
-app.listen(port,(req,res)=>{
-console.log("runing...")
-})
+export default router;

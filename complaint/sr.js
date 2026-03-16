@@ -8,10 +8,10 @@ import { MongoClient, ObjectId } from "mongodb";
 import cors from "cors";
 import multer from "multer";
   dotenv.config();
- const app = express();
+const router = express.Router();
 dotenv.config();
-app.use(cors()); 
-app.use(express.json()); 
+router.use(cors()); 
+router.use(express.json()); 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
  const client = new MongoClient(process.env.MONGO_URI);
@@ -26,7 +26,7 @@ async function startServer() {
     const Us = db.collection("Us");
     const Ad = db.collection("admin");
     const msg  = db.collection("msg");
-     app.post("/upload", upload.single("image"), async (req, res) => {
+     router.post("/upload", upload.single("image"), async (req, res) => {
       try {
         const file = req.file;
         const { _id,  userEmail,  userName,name, branch, complaint,  des,  location,  img, mobile,} = req.body;
@@ -59,7 +59,7 @@ async function startServer() {
       }
     }); 
 
-     app.get("/users", async (req, res) => {
+     router.get("/users", async (req, res) => {
       const { email } = req.query;
       if (!email) return res.status(400).json({ error: "Email required" });
 
@@ -67,7 +67,7 @@ async function startServer() {
       res.json(users);
     });
 
-     app.post("/create", upload.none(), async (req, res) => {
+     router.post("/create", upload.none(), async (req, res) => {
       const { email, userName, name, img, issue, branch, id } = req.body;
 
       const found = await Us.findOne({ email, userName, branch, id });
@@ -81,12 +81,12 @@ async function startServer() {
       res.json({ inserted: true });
     });
 
-     app.get("/use", async (req, res) => {
+     router.get("/use", async (req, res) => {
       const data = await Us.find({}).toArray();
       res.json(data);
     });
 
-    app.post("/load", upload.none(), async (req, res) => {
+    router.post("/load", upload.none(), async (req, res) => {
       const { userEmail, userName, _id, noti } = req.body;
 
       if (!_id || !ObjectId.isValid(_id)) {
@@ -98,7 +98,7 @@ async function startServer() {
       res.json({ success: true });
     });
 
-     app.post("/admin", upload.none(), async (req, res) => {
+     router.post("/admin", upload.none(), async (req, res) => {
       const { userEmail, userName, resp, branch, id } = req.body;
 
       const found = await Ad.findOne({ userEmail, userName, branch, id });
@@ -113,16 +113,16 @@ async function startServer() {
       res.json({ inserted: true });
     });
 
-     app.get("/adm", async (req, res) => {
+     router.get("/adm", async (req, res) => {
       const data = await User.find({}).toArray();
       res.json(data);
     });
 
-    app.get("/am", async (req, res) => {
+    router.get("/am", async (req, res) => {
       const data = await Ad.find({}).toArray();
       res.json(data);
     });
-app.post("/chstatus",async(req,res)=>{
+router.post("/chstatus",async(req,res)=>{
   console.log("fuck...",req.body)
   let data = await User.findOne({userEmail:req.body.email,des:req.body.des,mobile:req.body.mob})
   if(data){
@@ -132,7 +132,7 @@ app.post("/chstatus",async(req,res)=>{
   }
       return res.send({ok:fasle});
 })
-app.post("/msg",async(req,res)=>{
+router.post("/msg",async(req,res)=>{
   try{
 let data = await msg.find({email:req.body.email}).toArray();
  return res.send(data)
@@ -140,12 +140,13 @@ let data = await msg.find({email:req.body.email}).toArray();
 res.status(500).json([]);
   }
 })
-     app.listen(5000, () =>
-      console.log("Server running on http://localhost:5000")
-    );
+    //  router.listen(5000, () =>
+    //   console.log("Server running on http://localhost:5000")
+    // );
    } catch (err) {
     console.error("SERVER START ERROR:", err);
   }
 }
 
 startServer(); 
+export default router

@@ -26,9 +26,9 @@ const dataset = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../cache.json"), "utf-8")
 );
 
-   const app = express(); 
-app.use(cors()); 
-app.use(express.json());
+  const router = express.Router();
+router.use(cors()); 
+router.use(express.json());
 dotenv.config(); 
 const SECRET = "MY_SECRET_KEY";
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
@@ -50,7 +50,7 @@ const cache = new Map();
 console.log("total length->",dataset.length);
 // function call(){
   try{ 
- app.post("/movies", async (req, res) => {
+ router.post("/movies", async (req, res) => {
   try {
     const { it } = req.body; 
     if (cache.has(it)) {
@@ -68,7 +68,7 @@ console.log("total length->",dataset.length);
 });
 console.log("ENV KEY =>", process.env.YOUTUBE_API_KEY);
 
-app.post("/search",async(req,res)=>{
+router.post("/search",async(req,res)=>{
    const data = await collection.findOne({movie:req.body.p})
   if(data){
     console.log("databases se aya h bhai congratulations......")
@@ -91,11 +91,11 @@ app.post("/search",async(req,res)=>{
   }
  }) 
 
- app.post("/lo",async(req,res)=>{
+ router.post("/lo",async(req,res)=>{
  const data =await collection.find({movie:req.body.it}).toArray();
  return res.send(data);
  })
- app.post("/some",async(req,res)=>{
+ router.post("/some",async(req,res)=>{
     const data = await collect.findOne({title:req.body.p})
    if(data){
     return res.send(data);
@@ -104,7 +104,7 @@ app.post("/search",async(req,res)=>{
   //   throw new Error("fuck....")
   // }
  })
- app.post("/recommend", async (req, res) => {
+ router.post("/recommend", async (req, res) => {
    try {
      const d = await collect.findOne({title:req.body.query});
     if(d){
@@ -127,7 +127,7 @@ let sa = movies.filter((items)=>items.title)
 // console.log("sucesssfull added.....")
 //        } 
 //        setTimeout(get,5000) 
-app.post("/get",async(req,res)=>{
+router.post("/get",async(req,res)=>{
   try {
    console.log("data was came ..",dataset)
    let y = await main(req.body.k)
@@ -146,7 +146,7 @@ const results = fuse.search(y);
     throw new Error("somthing wrong....")
   }
 })  
-app.post("/savek",async(req,res)=>{
+router.post("/savek",async(req,res)=>{
    let data = await save.findOne({email:req.body.em,movie:req.body.m})
     //  let da = await watch.findOne({movie:req.body.m})
 
@@ -168,7 +168,7 @@ await save.insertOne({email:req.body.em,movie:req.body.m,watchTime:req.body.watc
 return res.send({ok:true})
   }) 
 
-  app.post("/store",async(req,res)=>{
+  router.post("/store",async(req,res)=>{
 let data = await watch.findOne({email:req.body.em,movie:req.body.m})
 if(data && req.body.unlike){ 
  await watch.updateOne({_id:data._id},{$set:{like:-1}})
@@ -196,7 +196,7 @@ return res.send({ok:true})
 
 
 
-app.post("/similier", async (req, res) => {
+router.post("/similier", async (req, res) => {
   try {
     let data = await recommend(req.body.em);
     const uniqueMovies = [
@@ -213,14 +213,14 @@ if(data.length==0){
     return res.json({ok:false,Array:[]}); // 🔥 EMPTY ARRAY
   }
 });
-app.post("/addM",async(req,res)=>{
+router.post("/addM",async(req,res)=>{
   let data = await add.findOne({email:req.body.em,movie:req.body.m})
   if(data){
     return;
   }
 await add.insertOne({email:req.body.em,movie:req.body.m,overvie:req.body.n,img:req.body.o,orgt:req.body.p,famus:req.body.q,rating:req.body.r,act:req.body.s,orllang:req.body.t,date:req.body.u});
 })
-app.post("/watchl",async(req,res)=>{
+router.post("/watchl",async(req,res)=>{
   try{
     let data = await add.find({email:req.body.em}).toArray()
     return res.send(data)
@@ -229,16 +229,16 @@ return "something went wrong....."
   }
 })
 
-app.post("/svs",async(req,res)=>{
+router.post("/svs",async(req,res)=>{
   let data = await watch.find({email:req.body.em}).toArray()
   return res.send(data)
 })
 
-app.post("/del", async (req, res) => {
+router.post("/del", async (req, res) => {
 await add.deleteOne({_id: new ObjectId(req.body.id), });
 return res.send({ ok: true });
 });
-app.post("/ais",async(req,res)=>{
+router.post("/ais",async(req,res)=>{
   let movie = await ai.findOne({movie:req.body.data})
   if(movie){
     return  res.send({data:movie.content})
@@ -252,7 +252,7 @@ else{
   return res.send("somthing went wrong....")
 }
 })
-app.post("/user",async(req,res)=>{
+router.post("/user",async(req,res)=>{
   try{
   let find = await user.findOne({name:req.body.name,email:req.body.email,password:req.body.password})
   if(find){
@@ -266,7 +266,7 @@ app.post("/user",async(req,res)=>{
  }
 })
 
-app.post("/login", async(req, res) => {
+router.post("/login", async(req, res) => {
   const { email, password } = req.body;
   const userf =await user.findOne(
      {email:email,password:password}
@@ -292,7 +292,7 @@ app.post("/login", async(req, res) => {
   });
 });
 
-app.get("/profile", auth, (req, res) => {
+router.get("/profile", auth, (req, res) => {
    res.json({
     ok:true,
     message: "Profile data",
@@ -301,7 +301,7 @@ app.get("/profile", auth, (req, res) => {
 });
 
 
-app.post("/count",async(req,res)=>{
+router.post("/count",async(req,res)=>{
   try{
 let data = await watch.find({movie:req.body.m,like:1}).toArray();
 return res.send(data);
@@ -309,7 +309,7 @@ return res.send(data);
    return res.send({ok:false})
   }
 })
-app.post("/unl",async(req,res)=>{
+router.post("/unl",async(req,res)=>{
   try{
 let data = await watch.find({movie:req.body.m,like:-1}).toArray();
 return res.send(data);
@@ -317,9 +317,10 @@ return res.send(data);
    return res.send({ok:false})
   }
 })
-app.listen(3000, () => {
-  console.log(" Server running on http://localhost:3000");
-});  
+// router.listen(3000, () => {
+//   console.log(" Server running on http://localhost:3000");
+// });  
    }catch(err){
      console.log("server crash.....")
   } 
+export default router
