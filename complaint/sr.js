@@ -128,7 +128,7 @@ router.post("/chstatus",async(req,res)=>{
   }
       return res.send({ok:fasle});
 })
-    app.get("/update", async (req, res) => {
+    router.get("/update", async (req, res) => {
 
    try {
      const id = req.query.edit;
