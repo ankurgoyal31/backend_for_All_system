@@ -1,20 +1,16 @@
-// const express = require("express");
-// const { MongoClient, ObjectId } = require("mongodb");
-// const multer = require("multer");
-// const cors = require("cors");
-  import dotenv from "dotenv";
-import express from "express";
-import { MongoClient, ObjectId } from "mongodb";
-import cors from "cors";
-import multer from "multer";
-  dotenv.config();
+require("dotenv").config();
+const express = require("express");
+const { MongoClient, ObjectId } = require("mongodb");
+const multer = require("multer");
+const cors = require("cors");
+// import { configDotenv } from "dotenv";
 const router = express.Router();
-dotenv.config();
 router.use(cors()); 
 router.use(express.json()); 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
- const client = new MongoClient(process.env.MONGO_URI);
+console.log("ENV VALUE:", process.env.MONGODB_URI);
+ const client = new MongoClient(process.env.MONGODB_URI);
 
 async function startServer() {
   try {
@@ -149,4 +145,4 @@ res.status(500).json([]);
 }
 
 startServer(); 
-export default router
+export default router;
