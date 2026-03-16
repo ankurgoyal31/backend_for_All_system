@@ -157,6 +157,9 @@ const find = await User.findOne({_id: new ObjectId(id)},{projection:{name: 1, br
    return res.status(500).json({ success: false });
   }
 });
+    router.get("/health", (req, res) => {
+  res.status(200).json({status: "ok",message: "server is running"});
+});
 router.post("/msg",async(req,res)=>{
   try{
 let data = await msg.find({email:req.body.email}).toArray();
