@@ -1,6 +1,6 @@
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
-import { get_s } from "./ai_category";
+import { get_s } from "./ai_category.js";
 import cors from "cors";
 const router = express.Router();
 const port = 5000;
