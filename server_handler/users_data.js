@@ -1,13 +1,12 @@
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
-import { get_s } from "../code";
- import cors from "cors";
-const app = express();
+import cors from "cors";
+const router = express.Router();
 const port = 5000;
 import dotenv from "dotenv";
 dotenv.config();
-app.use(cors());
-app.use(express.json());
+router.use(cors());
+router.use(express.json());
   
 const client = new MongoClient(process.env.MONGO_URI);
 
@@ -25,7 +24,7 @@ async function connectDB() {
 
 connectDB();
 
-app.post("/user_data", async (req, res) => {
+router.post("/user_data", async (req, res) => {
   try {
 
     const { journal, user_id } = req.body;
@@ -53,7 +52,7 @@ app.post("/user_data", async (req, res) => {
 
 });
 
-app.get("/get_data", async (req, res) => {
+router.get("/get_data", async (req, res) => {
 
   try {
 
@@ -77,7 +76,7 @@ app.get("/get_data", async (req, res) => {
 
 });
 
-app.post("/delete", async (req, res) => {
+router.post("/delete", async (req, res) => {
 
   try {
     await All_journal.deleteOne({_id: new ObjectId(req.body.id)});
@@ -95,7 +94,5 @@ app.post("/delete", async (req, res) => {
   }
 
 });
-
-app.listen(port, () => {
-  console.log("Server running on", port);
-});
+export default router;
+ 
