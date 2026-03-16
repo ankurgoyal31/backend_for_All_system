@@ -1,8 +1,9 @@
-require("dotenv").config();
-const express = require("express");
-const { MongoClient, ObjectId } = require("mongodb");
-const multer = require("multer");
-const cors = require("cors");
+import dotenv from "dotenv";
+import express from "express";
+import { MongoClient, ObjectId } from "mongodb";
+import cors from "cors";
+import multer from "multer";
+  dotenv.config();
 // import { configDotenv } from "dotenv";
 const router = express.Router();
 router.use(cors()); 
