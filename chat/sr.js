@@ -102,7 +102,9 @@ async function websearch({query}) {
   let res = response.results.map((item)=>{return item.content}).join("\n\n")
    return res;
 }
- 
+  router.get("/health", (req, res) => {
+  res.status(200).json({status: "ok",message: "server is running"});
+});
 router.post("/ask", async (req, res) => {
   const iny = req.body.inp;
    const ans = await main(iny);
