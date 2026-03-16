@@ -3,7 +3,7 @@ import express from "express";
 import chat from "./chat/sr.js";
 import movie from "./movie/sr.js";
 import complaint from "./complaint/sr.js";
-import journal from "./journal/ai_category"
+import journal from "./journal/ai_category.js"
 const app = express();
 
 app.use("/chat", chat);
