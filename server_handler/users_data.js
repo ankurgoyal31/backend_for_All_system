@@ -76,7 +76,9 @@ router.get("/get_data", async (req, res) => {
   }
 
 });
-
+ router.get("/health", (req, res) => {
+  res.status(200).json({status: "ok",message: "server is running"});
+});
 router.post("/delete", async (req, res) => {
 
   try {
